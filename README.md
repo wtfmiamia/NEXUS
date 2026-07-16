@@ -208,12 +208,17 @@ python src/lcu_sync.py IDENTIFY
 - Legacy plain-text passwords are auto-migrated on first read — **zero-touch upgrade**
 - API endpoints are protected by a session token generated on first boot
 
+## Contact
+You can contact me on discord under nmia.
+
 
 ## 📄 License
 
 [GNU GPL v3](LICENSE) © [Mia](https://github.com/wtfmiamia)
 
 ---
+
+
 
 <p align="center">
   <i>Built for the grind. One account at a time. 🏆</i>
