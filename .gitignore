@@ -1,1 +1,88 @@
--e "node_modules/\ndatabase/" 
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Diagnostic reports
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+lib-cov
+coverage
+*.lcov
+.nyc_output
+
+# Dependency directories
+node_modules/
+jspm_packages/
+web_modules/
+bower_components
+
+# Build outputs
+build/Release
+dist
+.output
+.next
+.nuxt
+.cache
+.parcel-cache
+.vuepress/dist
+.vitepress/dist
+.vitepress/cache
+.docusaurus
+.svelte-kit/
+.temp
+.vite/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Editor/IDE
+.vscode-test
+.idea/
+*.swp
+*.swo
+
+# Your specific exclusions
+database/
+__pycache__/
+*.pyc
+
+# Misc
+.grunt
+.lock-wscript
+.npm
+.eslintcache
+.stylelintcache
+.node_repl_history
+*.tgz
+.yarn-integrity
+.serverless/
+.fusebox/
+.dynamodb/
+.firebase/
+.tern-port
+.pnpm-store
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*

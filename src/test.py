@@ -79,7 +79,7 @@ def decrypt_password(stored: str) -> str:
 # ──────────────────────────────────────────────
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python decrypt_credentials.py <index>")
+        print("Usage: python test.py <index>")
         sys.exit(1)
 
     try:
