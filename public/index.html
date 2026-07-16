@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus v5 | Live Rank Tracker</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600;800&family=Oswald:wght@500;800&display=swap');
+body {
+    overflow-y: overlay; 
+    overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+    width: 6px; 
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(1, 10, 19, 0.5); 
+}
+.top-header {
+    -webkit-app-region: drag;
+    user-select: none;
+}
+#max-btn:hover {
+    background: rgba(0, 242, 255, 0.2); 
+    color: #00f2ff;
+}
+::-webkit-scrollbar-thumb {
+    background: #00f2ff; 
+    border-radius: 10px;
+    box-shadow: 0 0 10px #00f2ff; 
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #70fdff;
+    box-shadow: 0 0 15px #70fdff;
+}
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #010a13; 
+}
+        :root {
+            --bg-color: #0c0f13; 
+            --card-bg: rgba(18, 23, 31, 0.75); 
+            --accent-teal: #00ffd0; 
+            --accent-purple: #c790ff; 
+            --text-bright: #ffffff;
+            --text-dim: #7f8a9e;
+            --win-green: #00e676;
+            --loss-red: #ff3d00;
+            --shadow-elevation: 0 10px 40px rgba(0, 0, 0, 0.7);
+            --shadow-glow: 0 0 20px rgba(0, 255, 208, 0.15);
+           
+            --rank-iron: #51484a;
+            --rank-bronze: #8c513a;
+            --rank-silver: #80989d;
+            --rank-gold: #cd8837;
+            --rank-platinum: #4e9996;
+            --rank-emerald: #2eb27a;
+            --rank-diamond: #576bce;
+            --rank-master: #9d5ade;
+            --rank-grandmaster: #cd4545;
+            --rank-challenger: #f4c874;
+
+            --btn-edit: #3a86ff;
+            --btn-delete: #ff4d4d;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-bright);
+            font-family: 'Inter', system-ui, sans-serif;
+            display: flex;
+            justify-content: center;
+            padding: 60px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            animation: fadeInClient 1s ease;
+        }
+
+        @keyframes fadeInClient {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header {
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            padding: 25px 40px;
+            border-radius: 8px 8px 0 0;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-elevation);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: rgba(0,0,0,0.3);
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 1px solid #30363d;
+        }
+
+        .filter-chip {
+            background: transparent;
+            border: 1px solid #30363d;
+            color: var(--text-dim);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .filter-chip.active {
+            background: var(--accent-purple);
+            color: #000;
+            border-color: var(--accent-purple);
+        }
+
+        .nav-bar {
+            background: rgba(18, 23, 31, 0.9);
+            display: flex;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: none;
+            margin-bottom: 40px;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .nav-tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            transition: 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-tab.active {
+            color: var(--accent-teal);
+            border-bottom-color: var(--accent-teal);
+            background: rgba(0, 255, 208, 0.03);
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-family: 'Oswald', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 500;
+            color: var(--accent-teal);
+            text-shadow: 0 0 15px rgba(0, 255, 208, 0.4);
+            letter-spacing: 3px;
+        }
+
+        #rank-status {
+            font-size: 0.85rem;
+            color: var(--accent-purple);
+            font-family: monospace;
+            opacity: 0.8;
+        }
+
+        .main-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .settings-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            border-radius: 12px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            animation: fadeIn 0.4s ease;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .setting-item label {
+            display: block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--accent-purple);
+            margin-bottom: 10px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .account-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            padding: 24px 35px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .account-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--card-accent, var(--accent-teal));
+            opacity: 0.6;
+        }
+
+        .account-card:hover {
+            transform: translateX(10px);
+            background: rgba(25, 31, 41, 0.9);
+            border-color: var(--card-accent, var(--accent-teal));
+        }
+
+        .identity-block {
+            flex: 1.5;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border-right: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .stats-block {
+            flex: 2;
+            padding: 0 30px;
+            border-right: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .ops-block {
+            flex: 1.2;
+            padding-left: 30px;
+        }
+
+        .champ-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        .nick { font-weight: 800; font-size: 1.4rem; color: #fff; letter-spacing: -0.5px; }
+        .user { color: var(--text-dim); font-size: 0.75rem; font-family: monospace; letter-spacing: 1px; }
+
+        .role-badge { font-size: 9px; padding: 2px 6px; border-radius: 4px; color: #000; font-weight: 900; margin-right: 4px; text-transform: uppercase; }
+        .badge-top { background: #ff4d4d; } .badge-jgl { background: #4dff88; } .badge-mid { background: #4db8ff; } .badge-adc { background: #ffb84d; } .badge-sup { background: #c790ff; }
+
+       
+        .rank-text {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 800; 
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: inline-block;
+            filter: drop-shadow(0 0 5px var(--rank-glow-color)) drop-shadow(0 0 15px var(--rank-glow-color));
+            -webkit-filter: drop-shadow(0 0 5px var(--rank-glow-color)) drop-shadow(0 0 15px var(--rank-glow-color));
+        }
+
+        .lp-text { font-family: 'Inter', sans-serif; font-size: 1.1rem; color: #fff; font-weight: 800; margin-left: auto; padding-right: 15px;}
+        
+        .session-badge { font-size: 0.7rem; font-weight: 900; padding: 4px 10px; border-radius: 6px; }
+        .session-plus { color: var(--win-green); background: rgba(0, 230, 118, 0.15); border: 1px solid rgba(0, 230, 118, 0.3); }
+        .session-minus { color: var(--loss-red); background: rgba(255, 61, 0, 0.15); border: 1px solid rgba(255, 61, 0, 0.3); }
+
+        .wr-row { font-size: 0.85rem; font-family: monospace; color: var(--text-dim); display: flex; align-items: center; margin-top: 5px;}
+        .wr-accent { font-weight: bold; color: var(--accent-purple); margin: 0 12px; }
+        
+        .dpm-btn {
+            text-decoration: none; color: var(--accent-teal); font-size: 0.75rem; transition: all 0.2s; font-weight: 800;
+            background: rgba(0, 255, 208, 0.1); border: 1px solid rgba(0, 255, 208, 0.2); padding: 4px 12px; border-radius: 6px;
+        }
+        .dpm-btn:hover { background: var(--accent-teal); color: #000; box-shadow: 0 0 15px var(--accent-teal); }
+
+        .history-container { display: flex; gap: 6px; margin-top: 15px; }
+        .game-square { 
+            width: 14px; height: 14px; border-radius: 3px; 
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        .square-win { background: var(--win-green); filter: drop-shadow(0 0 3px rgba(0, 230, 118, 0.4)); }
+        .square-loss { background: var(--loss-red); filter: drop-shadow(0 0 3px rgba(255, 61, 0, 0.4)); }
+
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        
+        .btn {
+            background: rgba(255,255,255,0.03); color: rgba(255, 255, 255, 0.8); border: 1px solid rgba(255, 255, 255, 0.1);
+            font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; 
+            cursor: pointer; border-radius: 6px; padding: 12px; transition: all 0.2s;
+        }
+        .btn-small { padding: 10px; }
+        .btn-edit { color: var(--btn-edit); border-color: rgba(58, 134, 255, 0.2); }
+        .btn-edit:hover { background: rgba(58, 134, 255, 0.15); border-color: var(--btn-edit); }
+        
+        .btn-delete { color: var(--btn-delete); border-color: rgba(255, 77, 77, 0.2); }
+        .btn-delete:hover { background: rgba(255, 77, 77, 0.15); border-color: var(--btn-delete); }
+        
+        .btn-sync { color: var(--accent-purple); border-color: rgba(199, 144, 255, 0.2); }
+        .btn-sync:hover { background: rgba(199, 144, 255, 0.15); border-color: var(--accent-purple); }
+
+        .btn-primary { 
+            width: 100%; 
+            background: linear-gradient(135deg, #00ffd0 0%, #008f7a 100%); 
+            color: #000; border: none; font-weight: 900; letter-spacing: 1px;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 255, 208, 0.4);
+        }
+
+        .modal {
+            display: flex;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(20px);
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: #12161b;
+            padding: 45px;
+            width: 440px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            transform: translateY(-100vh);
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 16px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid #30363d;
+            color: #fff;
+            margin-bottom: 22px;
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--accent-teal);
+            outline: none;
+            background: rgba(0,0,0,0.6);
+        }
+
+     
+        .card-notes-wrapper {
+            margin-top: 15px;
+            padding: 10px 12px;
+            background: rgba(0,0,0,0.25);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-purple);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .notes-label {
+            display: flex;
+            align-items: center;
+            font-size: 9px;
+            font-weight: 900;
+            color: var(--accent-purple);
+            letter-spacing: 1.5px;
+            opacity: 0.8;
+        }
+
+        .notes-content {
+            font-size: 11px;
+            color: #e0e6ed;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .role-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            justify-content: space-between;
+        }
+
+        .role-opt {
+            font-size: 10px;
+            cursor: pointer;
+            opacity: 0.3;
+            font-weight: 900;
+            transition: 0.3s;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        .role-opt.selected {
+            opacity: 1;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255,255,255,0.1);
+        }
+.window-controls {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    z-index: 10000;
+    -webkit-app-region: no-drag; 
+}
+
+.control-btn {
+    background: transparent;
+    border: none;
+    color: #a0a0a8; 
+    padding: 10px 15px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.exit-btn:hover {
+    background: #ff4655 !important; 
+    color: white !important;
+}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="brand">
+            <h1>NEXUS_v5</h1>
+            <div id="rank-status">SYSTEM_READY // IDLE</div>
+        </div>
+        <div class="filter-group">
+            <button class="filter-chip" onclick="toggleFilter('top', this)">TOP</button>
+            <button class="filter-chip" onclick="toggleFilter('jgl', this)">JGL</button>
+            <button class="filter-chip" onclick="toggleFilter('mid', this)">MID</button>
+            <button class="filter-chip" onclick="toggleFilter('adc', this)">ADC</button>
+            <button class="filter-chip" onclick="toggleFilter('sup', this)">SUP</button>
+        </div>
+        <div style="display: flex; gap: 15px;">
+            <button class="btn btn-outline" style="border-color: var(--loss-red); color: var(--loss-red); padding: 10px 15px;" onclick="nukeRiot()">Nuke Client</button>
+            <button class="btn btn-primary" style="width: auto; padding: 10px 20px;" onclick="openModal('add')">Add Profile</button>
+        </div>
+    </header>
+
+    <div class="nav-bar">
+        <div class="nav-tab active" id="tab-accounts" onclick="switchTab('accounts')">Accounts</div>
+        <div class="nav-tab" id="tab-settings" onclick="switchTab('settings')">Nexus Settings</div>
+    </div>
+
+    <div class="main-panel" id="view-accounts">
+        <div id="account-list"></div>
+    </div>
+
+    <div id="view-settings" style="display: none;">
+        <div class="settings-container">
+            <h2 style="font-family: Oswald; color: var(--accent-teal); letter-spacing: 2px; margin-top: 0;">GLOBAL_CONFIG</h2>
+            <div class="settings-grid">
+                <div class="setting-item">
+                    <label>Riot Client Executable Path</label>
+                    <input type="text" id="cfg-riot-path" placeholder="C:\Riot Games\Riot Client\RiotClientServices.exe">
+                </div>
+                <div class="setting-item">
+                    <label>Assets Folder Path</label>
+                    <input type="text" id="cfg-assets-path" placeholder="C:\YourProject assets">
+                </div>
+                <div class="setting-item">
+                    <label>Default Region (for Stats Links)</label>
+                    <select id="cfg-region">
+                        <option value="euw">Europe West (EUW)</option>
+                        <option value="na">North America (NA)</option>
+                        <option value="eune">Europe Nordic & East (EUNE)</option>
+                        <option value="kr">Korea (KR)</option>
+                        <option value="br">Brazil (BR)</option>
+                        <option value="jp">Japan (JP)</option>
+                        <option value="lan">LAN</option>
+                        <option value="las">LAS</option>
+                        <option value="oce">OCE</option>
+                        <option value="tr">Turkey (TR)</option>
+                        <option value="ru">Russia (RU)</option>
+                        <option value="ph">Philippines (PH)</option>
+                        <option value="sg">Singapore (SG)</option>
+                        <option value="th">Thailand (TH)</option>
+                        <option value="tw">Taiwan (TW)</option>
+                        <option value="vn">Vietnam (VN)</option>
+                    </select>
+                </div>
+                <div class="setting-item" style="display: flex; align-items: flex-end;">
+                    <button class="btn btn-primary" style="width: 100%; margin-bottom: 20px;" onclick="saveConfig()">Apply Configuration</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="accountModal" class="modal">
+    <div class="modal-content">
+        <h2 id="modal-title" style="font-size: 1.4rem; color: var(--accent-teal); margin-bottom: 30px; font-family: Oswald;">CONFIG_PROFILE</h2>
+        
+        <input type="text" id="field-user" placeholder="Riot Username">
+        
+        <div id="pw-group">
+            <input type="password" id="field-pass" placeholder="Password">
+        </div>
+
+        <input type="text" id="field-tags" placeholder="Tags (e.g. Main, Smurf, Mid)">
+        
+        <div style="font-size: 10px; color: var(--text-dim); margin-bottom: 8px; font-weight: 800;">ASSIGN ROLES:</div>
+        <div class="role-selector" id="field-roles">
+            <span class="role-opt badge-top" onclick="this.classList.toggle('selected')">TOP</span>
+            <span class="role-opt badge-jgl" onclick="this.classList.toggle('selected')">JGL</span>
+            <span class="role-opt badge-mid" onclick="this.classList.toggle('selected')">MID</span>
+            <span class="role-opt badge-adc" onclick="this.classList.toggle('selected')">ADC</span>
+            <span class="role-opt badge-sup" onclick="this.classList.toggle('selected')">SUP</span>
+        </div>
+
+        <textarea id="field-notes" rows="4" placeholder="Notes..."></textarea>
+        
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-outline" onclick="closeModal()" style="flex:1;">Abort</button>
+            <button class="btn btn-primary" onclick="handleSave()" style="flex:2;">Save Profile</button>
+        </div>
+    </div>
+</div>
+<script>
+    let allAccounts = [];
+    let sessionToken = '';
+    let currentEditIdx = null;
+    let localLastUpdate = 0;
+    let activeFilters = new Set(); 
+
+    async function init() {
+        const tRes = await fetch('/api/token');
+        const tData = await tRes.json();
+        sessionToken = tData.token;
+        loadAccounts();
+    }
+
+    async function apiFetch(url, options = {}) {
+        return fetch(url, {
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                'x-nexus-token': sessionToken,
+                ...(options.headers || {})
+            }
+        });
+    }
+
+    function switchView(view, el) {
+        document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(`view-${view}`).classList.add('active');
+        el.classList.add('active');
+    }
+
+    const rankColors = {
+        'IRON': 'var(--rank-iron)', 'BRONZE': 'var(--rank-bronze)', 'SILVER': 'var(--rank-silver)',
+        'GOLD': 'var(--rank-gold)', 'PLATINUM': 'var(--rank-platinum)', 'EMERALD': 'var(--rank-emerald)',
+        'DIAMOND': 'var(--rank-diamond)', 'MASTER': 'var(--rank-master)', 'GRANDMASTER': 'var(--rank-grandmaster)',
+        'CHALLENGER': 'var(--rank-challenger)'
+    };
+
+    function getRankColor(rankStr) {
+        if (!rankStr) return 'var(--text-dim)';
+        const upper = rankStr.toUpperCase();
+        for (const [tier, color] of Object.entries(rankColors)) {
+            if (upper.includes(tier)) return color;
+        }
+        return 'var(--text-dim)';
+    }
+
+    function toggleFilter(role, btn) {
+        btn.classList.toggle('active');
+        const roleLower = role.toLowerCase();
+        if (activeFilters.has(roleLower)) activeFilters.delete(roleLower);
+        else activeFilters.add(roleLower);
+        renderAccounts();
+    }
+
+    async function loadAccounts() {
+        try {
+            await loadConfig();
+            const res = await apiFetch('/api/accounts');
+            const data = await res.json();
+            
+            allAccounts = Array.isArray(data) ? data : (data.accounts || []);
+            
+            renderAccounts();
+        } catch (err) { 
+            console.error("Failed to load accounts:", err);
+            allAccounts = []; 
+        }
+    }
+
+    function renderAccounts() {
+        const container = document.getElementById('account-list');
+        if (!container) return;
+
+        const dataToFilter = Array.isArray(allAccounts) ? allAccounts : [];
+        
+        const filtered = dataToFilter.filter(acc => {
+            if (activeFilters.size === 0) return true;
+            const tags = (acc.tags || "").split(',').map(t => t.trim().toLowerCase());
+            return [...activeFilters].some(f => tags.includes(f));
+        });
+
+        container.innerHTML = filtered.map((acc) => {
+            const index = allAccounts.indexOf(acc);
+            const hasCreds = acc.username && acc.username.trim() !== "";
+            const totalGames = (acc.wins || 0) + (acc.losses || 0);
+            const winRatio = totalGames > 0 ? ((acc.wins / totalGames) * 100).toFixed(1) : "0.0";
+            const lpDelta = acc.lpDelta || 0;
+            
+            const statsUrl = `https://dpm.lol/${acc.riotId ? acc.riotId.replace('#', '-') : ''}`;
+            
+            let rawRank = acc.lastRank || 'UNRANKED';
+            let rankName = rawRank;
+            const upperRank = rawRank.toUpperCase();
+            
+            if (upperRank.includes("MASTER") || upperRank.includes("CHALLENGER") || upperRank.includes("GRANDMASTER")) {
+                 rankName = upperRank.split(' ')[0];
+            }
+
+            const rankColor = getRankColor(rankName);
+            const historyHTML = (acc.history && Array.isArray(acc.history)) 
+                ? acc.history.map(r => `<div class="game-square ${r === 'WIN' ? 'square-win' : 'square-loss'}"></div>`).join('') : '';
+
+            const iconUrl = acc.topChampId && acc.topChampId !== 0
+                ? `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${acc.topChampId}.png`
+                : `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/0.jpg`;
+
+            const tagsHTML = (acc.tags || "").split(',').map(t => t.trim() ? `<span class="role-badge badge-${t.toLowerCase()}">${t}</span>` : '').join('');
+
+            return `
+                <div class="account-card" style="--card-accent: ${rankColor};">
+                    <div class="identity-block">
+                        <img src="${iconUrl}" class="champ-icon" onerror="this.src='https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/0.jpg'">
+                        <div class="identity-text">
+                            <span class="nick">${acc.riotId || 'Unnamed'}</span><br>
+                            <div style="margin-top: 8px; display: flex; gap: 4px; flex-wrap: wrap;">
+                                ${tagsHTML}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stats-block">
+                        <div class="rank-and-delta" style="display:flex; align-items:center;">
+                            <span class="rank-text" style="color: ${rankColor}; --rank-glow-color: ${rankColor};">
+                                ${rankName}
+                            </span>
+                            <span class="lp-text">${acc.lp || 0} LP</span>
+                            <span class="session-badge ${lpDelta >= 0 ? 'session-plus' : 'session-minus'}">
+                                ${lpDelta >= 0 ? '+' : ''}${lpDelta} Today
+                            </span>
+                        </div>
+                        <div class="wr-row">
+                            <span>W ${acc.wins || 0}</span> / <span>L ${acc.losses || 0}</span>
+                            <span class="wr-accent">[ ${winRatio}% WR ]</span>
+                            <a href="${statsUrl}" target="_blank" class="dpm-btn">LIVE_STATS</a>
+                        </div>
+                        <div class="history-container">${historyHTML}</div>
+                        
+                        <div class="card-notes-wrapper" style="border-left-color: ${rankColor};">
+                            <div class="notes-label" style="color: ${rankColor};">
+                                <svg style="width:10px; height:10px; fill:${rankColor}; margin-right:6px;" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                                MEMO_SYSTEM
+                            </div>
+                            <div class="notes-content">
+                                ${acc.notes || 'No session data recorded...'}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ops-block">
+                        <div class="btn-grid">
+                            <button class="btn btn-small btn-edit" onclick="openModal('edit', ${index})">Edit</button>
+                            <button class="btn btn-small btn-sync" onclick="syncOnly(this, ${index})">Sync</button>
+                            <button class="btn btn-small btn-delete" onclick="deleteAcc(${index})">Del</button>
+                        </div>
+                        <button class="btn btn-primary" ${hasCreds ? '' : 'disabled'} onclick="launchLogin(this, ${index})">LAUNCH ACCOUNT</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function syncOnly(btn, idx) {
+        const originalText = btn.innerText;
+        btn.innerText = "..."; btn.disabled = true;
+        try {
+            await fetch('/api/sync-only', { 
+                method: 'POST', 
+            headers: {
+                'Content-Type': 'application/json',
+                'x-nexus-token': sessionToken 
+              },
+                body: JSON.stringify({ index: idx, username: allAccounts[idx].username }) 
+            });
+            setTimeout(() => { btn.innerText = originalText; btn.disabled = false; loadAccounts(); }, 5000); 
+        } catch (err) {
+            btn.innerText = "Err"; btn.disabled = false;
+        }
+    }
+    function openModal(mode, idx = null) {
+        currentEditIdx = idx;
+
+        document.querySelectorAll('.role-opt').forEach(el => el.classList.remove('selected'));
+
+        document.getElementById('pw-group').style.display = mode === 'edit' ? 'none' : 'block';
+        if(mode === 'edit') {
+            const acc = allAccounts[idx];
+            document.getElementById('field-user').value = acc.username;
+            document.getElementById('field-tags').value = acc.tags || '';
+
+            if (acc.roles && Array.isArray(acc.roles)) {
+                document.querySelectorAll('.role-opt').forEach(el => {
+                    if (acc.roles.includes(el.innerText)) el.classList.add('selected');
+                });
+            }
+        } else {
+            document.getElementById('field-user').value = '';
+            document.getElementById('field-pass').value = '';
+            document.getElementById('field-tags').value = '';
+        }
+        document.getElementById('accountModal').classList.add('active');
+    }
+
+    function closeModal() { document.getElementById('accountModal').classList.remove('active'); }
+
+async function handleSave() {
+    const selectedRoles = [];
+    document.querySelectorAll('#field-roles .role-opt.selected').forEach(el => {
+        selectedRoles.push(el.innerText);
+    });
+
+    const data = {
+        username: document.getElementById('field-user').value,
+        password: document.getElementById('field-pass').value,
+        tags: document.getElementById('field-tags').value, // The text tags/notes
+        roles: selectedRoles // The TOP, JGL, MID, etc. badges
+    };
+
+    const method = currentEditIdx !== null ? 'PUT' : 'POST';
+    const url = currentEditIdx !== null ? `/api/accounts/${currentEditIdx}` : '/api/accounts';
+
+    await apiFetch(url, { 
+        method, 
+        body: JSON.stringify(data) 
+    });
+
+    closeModal();
+    loadAccounts();
+}
+
+    async function loadConfig() {
+        const res = await apiFetch('/api/config');
+        const cfg = await res.json();
+        const riotInput = document.getElementById('cfg-riot-path');
+        const assetsInput = document.getElementById('cfg-assets-path');
+        if(riotInput) riotInput.value = cfg.riotClientPath || '';
+        if(assetsInput) assetsInput.value = cfg.assetsPath || '';
+    }
+
+    async function saveConfig() {
+        const data = {
+            riotClientPath: document.getElementById('cfg-riot-path').value,
+            assetsPath: document.getElementById('cfg-assets-path').value
+        };
+        await apiFetch('/api/config', { method: 'POST', body: JSON.stringify(data) });
+        const status = document.getElementById('status-display');
+        if(status) {
+            status.innerText = "CONFIG_SYNCHRONIZED";
+            setTimeout(() => status.innerText = "STATUS: NOMINAL", 2000);
+        }
+    }
+
+    async function launchLogin(btn, idx) {
+        const status = document.getElementById('status-display');
+        if(status) status.innerText = "RUNNING_SEQUENCE";
+        await apiFetch('/api/login', { method: 'POST', body: JSON.stringify({ index: idx }) });
+    }
+
+    async function nukeRiot() {
+        const status = document.getElementById('status-display');
+        if(status) status.innerText = "ECOSYSTEM_PURGE";
+        await apiFetch('/api/kill-riot', { method: 'POST' });
+        setTimeout(() => { if(status) status.innerText = "STATUS: NOMINAL" }, 2000);
+    }
+
+    async function deleteAcc(idx) {
+        if(!confirm("Terminate entity record?")) return;
+        await apiFetch(`/api/accounts/${idx}`, { method: 'DELETE' });
+        loadAccounts();
+    }
+
+    setInterval(async () => {
+        try {
+            const res = await apiFetch('/api/update-signal');
+            const data = await res.json();
+            if (data.lastUpdate > localLastUpdate) {
+                localLastUpdate = data.lastUpdate;
+                loadAccounts();
+            }
+        } catch {}
+    }, 3000);
+
+    init();
+</script>
+</body>
+</html>
